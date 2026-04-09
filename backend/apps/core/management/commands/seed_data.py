@@ -5,6 +5,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 from apps.buyers.models import Buyer
+from apps.core.demo_users import ensure_demo_users
 from apps.orders.models import Order
 from apps.production.models import ProductionEntry
 from apps.production_lines.models import ProductionLine
@@ -22,64 +23,13 @@ class Command(BaseCommand):
             help="Seed only when database has no users/orders/production entries.",
         )
 
-    def _upsert_default_users(self):
-        admin_user, _ = User.objects.update_or_create(
-            username="admin",
-            defaults={
-                "email": "admin@factory.com",
-                "first_name": "Factory",
-                "last_name": "Admin",
-                "role": User.Role.ADMIN,
-                "is_active": True,
-            },
-        )
-        admin_user.set_password("Admin@123")
-        admin_user.save()
-
-        sup1, _ = User.objects.update_or_create(
-            username="sup_amit",
-            defaults={
-                "email": "amit@factory.com",
-                "first_name": "Amit",
-                "last_name": "Sharma",
-                "role": User.Role.SUPERVISOR,
-                "is_active": True,
-            },
-        )
-        sup1.set_password("Supervisor@123")
-        sup1.save()
-
-        sup2, _ = User.objects.update_or_create(
-            username="sup_neha",
-            defaults={
-                "email": "neha@factory.com",
-                "first_name": "Neha",
-                "last_name": "Patel",
-                "role": User.Role.SUPERVISOR,
-                "is_active": True,
-            },
-        )
-        sup2.set_password("Supervisor@123")
-        sup2.save()
-
-        viewer, _ = User.objects.update_or_create(
-            username="viewer_raj",
-            defaults={
-                "email": "raj@factory.com",
-                "first_name": "Raj",
-                "last_name": "Verma",
-                "role": User.Role.VIEWER,
-                "is_active": True,
-            },
-        )
-        viewer.set_password("Viewer@123")
-        viewer.save()
-
-        return admin_user, sup1, sup2, viewer
-
     def handle(self, *args, **options):
         today = timezone.localdate()
-        admin_user, sup1, sup2, viewer = self._upsert_default_users()
+        demo_users = ensure_demo_users()
+        admin_user = demo_users["admin"]
+        sup1 = demo_users["sup_amit"]
+        sup2 = demo_users["sup_neha"]
+        viewer = demo_users["viewer_raj"]
 
         if options.get("if_empty"):
             has_domain_data = (

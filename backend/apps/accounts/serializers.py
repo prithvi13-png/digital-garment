@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+from apps.core.demo_users import DEMO_CREDENTIALS, ensure_demo_users
+
 User = get_user_model()
 
 
@@ -67,6 +69,15 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs):
         identifier = attrs.get("username")
+        password = attrs.get("password")
+
+        if identifier and password:
+            expected_password = DEMO_CREDENTIALS.get(identifier.lower())
+            if expected_password and password == expected_password:
+                # Free-tier deployments may miss manual seeding.
+                # Ensure documented demo users exist before authentication.
+                ensure_demo_users()
+
         if identifier and "@" in identifier:
             user = User.objects.filter(email__iexact=identifier).first()
             attrs["username"] = user.username if user else identifier
