@@ -1,10 +1,5 @@
 {
   "name": "vaeyu-erp",
-  "compatibility_date": "2024-01-01",
-  "routes": [
-    {
-      "pattern": "erp.vaeyuinnovations.com/*",
-      "zone_name": "vaeyuinnovations.com"
-    }
-  ]
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2024-01-01"
 }
