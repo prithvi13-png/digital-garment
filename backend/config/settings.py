@@ -3,6 +3,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 import environ
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -156,6 +157,23 @@ for frontend_url in frontend_app_urls:
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = env.bool("USE_X_FORWARDED_HOST", default=True)
 IS_PRODUCTION = DJANGO_ENV.lower() == "production" or not DEBUG
+
+database_url_value = env("DATABASE_URL", default="")
+if database_url_value:
+    parsed_db_url = urlparse(database_url_value)
+    if parsed_db_url.hostname == "host":
+        raise ImproperlyConfigured(
+            "DATABASE_URL is using placeholder host 'host'. "
+            "Set DATABASE_URL to a real PostgreSQL URL from your provider (Render managed database)."
+        )
+else:
+    postgres_host = env("POSTGRES_HOST", default="").strip().lower()
+    if postgres_host == "host":
+        raise ImproperlyConfigured(
+            "POSTGRES_HOST is set to placeholder value 'host'. "
+            "Use a real DB host or set DATABASE_URL."
+        )
+
 SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=IS_PRODUCTION)
 SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE_SECURE", default=IS_PRODUCTION)
 CSRF_COOKIE_SECURE = env.bool("CSRF_COOKIE_SECURE", default=IS_PRODUCTION)
