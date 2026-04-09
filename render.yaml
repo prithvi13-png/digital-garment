@@ -3,6 +3,7 @@ services:
     name: digital-factory-backend
     env: python
     rootDir: backend
+    healthCheckPath: /api/v1/health/
     buildCommand: ./build.sh
     startCommand: python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 3 --timeout 120
     autoDeploy: true
@@ -16,17 +17,21 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: ALLOWED_HOSTS
-        value: digital-factory-backend.onrender.com
+        value: digital-factory-backend.onrender.com,api.vaeyuinnovations.com
       - key: CORS_ALLOWED_ORIGINS
-        value: https://factory.your-domain.com
+        value: https://erp.vaeyuinnovations.com,https://vaeyu-erp.prithviprabhakarh13.workers.dev
       - key: CSRF_TRUSTED_ORIGINS
-        value: https://factory.your-domain.com
+        value: https://erp.vaeyuinnovations.com,https://vaeyu-erp.prithviprabhakarh13.workers.dev
+      - key: BACKEND_PUBLIC_URL
+        value: https://api.vaeyuinnovations.com
       - key: ACCESS_TOKEN_MINUTES
         value: "30"
       - key: REFRESH_TOKEN_DAYS
         value: "7"
       - key: PAGE_SIZE
         value: "20"
+      - key: DB_CONNECT_TIMEOUT
+        value: "10"
       - key: DATABASE_URL
         fromDatabase:
           name: digital-factory-postgres

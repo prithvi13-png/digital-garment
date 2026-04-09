@@ -113,8 +113,12 @@ This gives you:
 2. In Render, create Blueprint from this repo (`render.yaml` at root).
 3. Update these env vars in Render:
    - `ALLOWED_HOSTS` -> your backend domain(s), comma-separated
+     Example: `digital-factory-backend.onrender.com,api.vaeyuinnovations.com`
    - `CORS_ALLOWED_ORIGINS` -> Cloudflare frontend origin(s), comma-separated
+     Example: `https://erp.vaeyuinnovations.com,https://vaeyu-erp.prithviprabhakarh13.workers.dev`
    - `CSRF_TRUSTED_ORIGINS` -> same frontend origin(s) with `https://`
+   - `BACKEND_PUBLIC_URL` -> your public backend URL
+     Example: `https://api.vaeyuinnovations.com`
 4. Keep `DEBUG=False` and `DJANGO_ENV=production`.
 5. After first deploy, run seed once using Render Shell:
    ```bash
@@ -133,9 +137,20 @@ Use `backend/.env.example` as reference. Important keys:
 - `ALLOWED_HOSTS`
 - `CORS_ALLOWED_ORIGINS`
 - `CSRF_TRUSTED_ORIGINS`
+- `BACKEND_PUBLIC_URL`
+- `DB_CONNECT_TIMEOUT`
 - `SECURE_SSL_REDIRECT=True`
 - `SESSION_COOKIE_SECURE=True`
 - `CSRF_COOKIE_SECURE=True`
+
+## Quick Production Troubleshooting
+If backend appears down:
+1. Check health directly:
+   - `https://<your-backend-domain>/api/v1/health/`
+2. Confirm DNS for `api.<your-domain>` exists (A/AAAA/CNAME) and resolves.
+3. In Render service logs, confirm startup reached Gunicorn and did not fail at `python manage.py migrate`.
+4. Confirm `DATABASE_URL` is set and PostgreSQL is reachable.
+5. Confirm `ALLOWED_HOSTS`, `CORS_ALLOWED_ORIGINS`, and `CSRF_TRUSTED_ORIGINS` include your live domains.
 
 ## Notes
 - Order status is auto-synced by stage, delivery date, and production activity.

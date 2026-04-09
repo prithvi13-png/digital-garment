@@ -1,5 +1,6 @@
 from datetime import timedelta
 from pathlib import Path
+from urllib.parse import urlparse
 
 import environ
 
@@ -17,7 +18,21 @@ environ.Env.read_env(BASE_DIR / ".env")
 DEBUG = env("DEBUG")
 SECRET_KEY = env("SECRET_KEY")
 DJANGO_ENV = env("DJANGO_ENV", default="development")
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
+allowed_hosts = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
+for hostname in (
+    env("RENDER_EXTERNAL_HOSTNAME", default=""),
+    env("RAILWAY_PUBLIC_DOMAIN", default=""),
+):
+    if hostname and hostname not in allowed_hosts:
+        allowed_hosts.append(hostname)
+
+backend_public_url = env("BACKEND_PUBLIC_URL", default="")
+if backend_public_url:
+    parsed_backend_url = urlparse(backend_public_url)
+    if parsed_backend_url.hostname and parsed_backend_url.hostname not in allowed_hosts:
+        allowed_hosts.append(parsed_backend_url.hostname)
+
+ALLOWED_HOSTS = allowed_hosts
 
 INSTALLED_APPS = [
     "corsheaders",
@@ -87,6 +102,9 @@ else:
     }
 DATABASES["default"]["CONN_MAX_AGE"] = env.int("DB_CONN_MAX_AGE", default=60)
 DATABASES["default"]["CONN_HEALTH_CHECKS"] = True
+if DATABASES["default"].get("ENGINE") == "django.db.backends.postgresql":
+    db_options = DATABASES["default"].setdefault("OPTIONS", {})
+    db_options.setdefault("connect_timeout", env.int("DB_CONNECT_TIMEOUT", default=10))
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -126,6 +144,14 @@ CORS_ALLOWED_ORIGINS = env.list(
 CORS_ALLOWED_ORIGIN_REGEXES = env.list("CORS_ALLOWED_ORIGIN_REGEXES", default=[])
 CORS_ALLOW_ALL_ORIGINS = env.bool("CORS_ALLOW_ALL_ORIGINS", default=False)
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
+
+# Optional convenience variable to keep frontend origin config in one place.
+frontend_app_urls = env.list("FRONTEND_APP_URLS", default=[])
+for frontend_url in frontend_app_urls:
+    if frontend_url and frontend_url not in CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS.append(frontend_url)
+    if frontend_url and frontend_url not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(frontend_url)
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = env.bool("USE_X_FORWARDED_HOST", default=True)

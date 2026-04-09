@@ -7,7 +7,7 @@
   "routes": [
     {
       "pattern": "erp.vaeyuinnovations.com/*",
-      "custom_domain": true
+      "zone_name": "vaeyuinnovations.com"
     }
   ],
   "assets": {
