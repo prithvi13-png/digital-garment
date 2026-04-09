@@ -15,7 +15,24 @@ User = get_user_model()
 class Command(BaseCommand):
     help = "Seed development data for Digital Factory Management System"
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--if-empty",
+            action="store_true",
+            help="Seed only when database has no users/orders/production entries.",
+        )
+
     def handle(self, *args, **options):
+        if options.get("if_empty"):
+            if User.objects.exists() or Order.objects.exists() or ProductionEntry.objects.exists():
+                self.stdout.write(
+                    self.style.WARNING(
+                        "Seed skipped because data already exists. "
+                        "Use `python manage.py seed_data` without --if-empty to reseed."
+                    )
+                )
+                return
+
         today = timezone.localdate()
 
         admin_user, _ = User.objects.update_or_create(
