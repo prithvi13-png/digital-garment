@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import { Factory, LayoutDashboard, ListChecks, Package2, Settings2, ShoppingBag, Users, UserCog, X } from "lucide-react";
 import Link from "next/link";
@@ -65,9 +66,14 @@ export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
     >
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="rounded-xl bg-gradient-to-b from-blue-600 to-blue-700 p-2 text-white shadow-[0_8px_20px_rgba(37,99,235,0.28)]">
-            <Factory className="h-5 w-5" />
-          </div>
+         <div className="rounded-xl bg-gradient-to-b from-blue-600 to-blue-700 p-2 shadow-[0_8px_20px_rgba(37,99,235,0.28)]">
+  <Image
+    src="/lg.png"
+    alt="Logo"
+    width={20}
+    height={20}
+  />
+</div>
           <div>
             <p className="text-sm font-semibold text-slate-800">Digital Factory</p>
             <p className="text-xs text-slate-500">Management System</p>
