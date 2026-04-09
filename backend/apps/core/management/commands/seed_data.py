@@ -22,19 +22,7 @@ class Command(BaseCommand):
             help="Seed only when database has no users/orders/production entries.",
         )
 
-    def handle(self, *args, **options):
-        if options.get("if_empty"):
-            if User.objects.exists() or Order.objects.exists() or ProductionEntry.objects.exists():
-                self.stdout.write(
-                    self.style.WARNING(
-                        "Seed skipped because data already exists. "
-                        "Use `python manage.py seed_data` without --if-empty to reseed."
-                    )
-                )
-                return
-
-        today = timezone.localdate()
-
+    def _upsert_default_users(self):
         admin_user, _ = User.objects.update_or_create(
             username="admin",
             defaults={
@@ -86,6 +74,33 @@ class Command(BaseCommand):
         )
         viewer.set_password("Viewer@123")
         viewer.save()
+
+        return admin_user, sup1, sup2, viewer
+
+    def handle(self, *args, **options):
+        today = timezone.localdate()
+        admin_user, sup1, sup2, viewer = self._upsert_default_users()
+
+        if options.get("if_empty"):
+            has_domain_data = (
+                Buyer.objects.exists()
+                or ProductionLine.objects.exists()
+                or Order.objects.exists()
+                or ProductionEntry.objects.exists()
+            )
+            if has_domain_data:
+                self.stdout.write(
+                    self.style.WARNING(
+                        "Seed skipped because domain data already exists. "
+                        "Default demo users/passwords were refreshed."
+                    )
+                )
+                self.stdout.write("Admin login: admin / Admin@123")
+                self.stdout.write(
+                    "Supervisor logins: sup_amit / Supervisor@123, sup_neha / Supervisor@123"
+                )
+                self.stdout.write("Viewer login: viewer_raj / Viewer@123")
+                return
 
         buyers = [
             {
