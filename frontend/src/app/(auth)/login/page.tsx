@@ -54,7 +54,7 @@ export default function LoginPage() {
           <h1 className="text-2xl font-bold text-slate-900">Digital Factory Login</h1>
           <p className="mt-1 text-sm text-slate-500">Sign in to manage orders and production in one place.</p>
         </div>
-
+{/* test */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700">Username or Email</label>
