@@ -23,11 +23,7 @@
 }
 
 body {
-  font-family:
-    "Plus Jakarta Sans",
-    "IBM Plex Sans",
-    "Segoe UI",
-    sans-serif;
+  font-family: var(--font-sans), "Inter", "Segoe UI", sans-serif;
   background:
     radial-gradient(circle at 90% 0%, #e0edff 0%, transparent 38%),
     radial-gradient(circle at 0% 100%, #d7faf3 0%, transparent 35%),
@@ -45,12 +41,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family:
-    "Satoshi",
-    "Plus Jakarta Sans",
-    "Inter Tight",
-    "Segoe UI",
-    sans-serif;
+  font-family: var(--font-sans), "Inter", "Segoe UI", sans-serif;
   letter-spacing: -0.02em;
   color: #0b1220;
 }

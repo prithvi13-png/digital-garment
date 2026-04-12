@@ -1,11 +1,11 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
 import { useAuth } from "@/components/auth/auth-provider";
+import { ReportNav } from "@/components/reports/report-nav";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -87,13 +87,9 @@ export default function ProductionReportPage() {
             <h2 className="text-lg font-semibold text-slate-900">Production Report</h2>
             <p className="text-sm text-slate-500">Filter daily output, efficiency, and rejection trends.</p>
           </div>
-          <div className="flex gap-2">
-            <Link href="/reports/orders">
-              <Button variant="secondary">Switch to Orders Report</Button>
-            </Link>
-            <Button onClick={downloadCsv}>Export CSV</Button>
-          </div>
+          <Button onClick={downloadCsv}>Export CSV</Button>
         </div>
+        <ReportNav />
 
         <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-4">
           <Input

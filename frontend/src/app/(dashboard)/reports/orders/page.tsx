@@ -1,10 +1,10 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
+import { ReportNav } from "@/components/reports/report-nav";
 import { StageBadge } from "@/components/status-badges/stage-badge";
 import { StatusBadge } from "@/components/status-badges/status-badge";
 import { Button } from "@/components/ui/button";
@@ -71,13 +71,9 @@ export default function OrdersReportPage() {
             <h2 className="text-lg font-semibold text-slate-900">Orders Report</h2>
             <p className="text-sm text-slate-500">Track order lifecycle, delays, and completion rates.</p>
           </div>
-          <div className="flex gap-2">
-            <Link href="/reports/production">
-              <Button variant="secondary">Switch to Production Report</Button>
-            </Link>
-            <Button onClick={downloadCsv}>Export CSV</Button>
-          </div>
+          <Button onClick={downloadCsv}>Export CSV</Button>
         </div>
+        <ReportNav />
 
         <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-4">
           <Select

@@ -242,8 +242,8 @@ export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
     >
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="rounded-xl bg-gradient-to-b from-blue-600 to-blue-700 p-2 shadow-[0_8px_20px_rgba(37,99,235,0.28)]">
-            <Image src={logoImage} alt="Digital Factory Logo" width={20} height={20} priority />
+          <div className="rounded-xl ">
+            <Image src={logoImage} alt="Digital Factory Logo" width={60} height={60} priority />
           </div>
           <div>
             <p className="text-sm font-semibold text-slate-800">Digital Factory</p>

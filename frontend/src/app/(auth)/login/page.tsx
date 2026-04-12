@@ -54,17 +54,32 @@ export default function LoginPage() {
           <h1 className="text-2xl font-bold text-slate-900">Digital Factory Login</h1>
           <p className="mt-1 text-sm text-slate-500">Sign in to manage orders and production in one place.</p>
         </div>
-{/* test */}
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700">Username or Email</label>
-            <Input placeholder="admin or admin@factory.com" {...register("username")} />
+            <Input
+              placeholder="admin or admin@factory.com"
+              autoCapitalize="none"
+              autoCorrect="off"
+              autoComplete="username"
+              spellCheck={false}
+              {...register("username")}
+            />
             {errors.username ? <p className="mt-1 text-xs text-red-600">{errors.username.message}</p> : null}
           </div>
 
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700">Password</label>
-            <Input type="password" placeholder="••••••••" {...register("password")} />
+            <Input
+              type="password"
+              placeholder="••••••••"
+              autoCapitalize="none"
+              autoCorrect="off"
+              autoComplete="current-password"
+              spellCheck={false}
+              {...register("password")}
+            />
             {errors.password ? <p className="mt-1 text-xs text-red-600">{errors.password.message}</p> : null}
           </div>
 

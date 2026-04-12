@@ -30,7 +30,15 @@ const schema = z.object({
   username: z.string().min(1, "Username is required"),
   email: z.string().email("Invalid email"),
   password: z.string().min(8, "Password must be at least 8 characters").optional().or(z.literal("")),
-  role: z.enum(["admin", "supervisor", "viewer"]),
+  role: z.enum([
+    "admin",
+    "store_manager",
+    "production_supervisor",
+    "quality_inspector",
+    "planner",
+    "supervisor",
+    "viewer",
+  ]),
   is_active: z.enum(["true", "false"]),
 });
 
@@ -184,6 +192,10 @@ export default function UsersPage() {
             <label className="mb-1 block text-sm font-medium text-slate-700">Role</label>
             <Select {...register("role")}>
               <option value="admin">Admin</option>
+              <option value="store_manager">Store Manager</option>
+              <option value="production_supervisor">Production Supervisor</option>
+              <option value="quality_inspector">Quality Inspector</option>
+              <option value="planner">Planner</option>
               <option value="supervisor">Supervisor</option>
               <option value="viewer">Viewer</option>
             </Select>

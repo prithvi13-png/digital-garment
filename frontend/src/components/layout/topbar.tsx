@@ -13,8 +13,37 @@ function getPageTitle(pathname: string) {
   if (pathname.startsWith("/lines")) return "Production Lines";
   if (pathname.startsWith("/orders")) return "Orders";
   if (pathname.startsWith("/production-entries")) return "Production Entries";
+
+  if (pathname.startsWith("/materials/")) return "Material Details";
+  if (pathname.startsWith("/materials")) return "Materials";
+  if (pathname.startsWith("/material-inward")) return "Material Inward";
+  if (pathname.startsWith("/material-issues")) return "Material Issues";
+  if (pathname.startsWith("/stock-adjustments")) return "Stock Adjustments";
+  if (pathname.startsWith("/inventory/stock-summary")) return "Stock Summary";
+  if (pathname.startsWith("/inventory/consumption-variance")) return "Consumption Variance";
+
+  if (pathname.startsWith("/workers/")) return "Worker Details";
+  if (pathname.startsWith("/workers")) return "Workers";
+  if (pathname.startsWith("/worker-productivity/summary")) return "Productivity Summary";
+  if (pathname.startsWith("/worker-productivity")) return "Worker Productivity";
+
+  if (pathname.startsWith("/defect-types")) return "Defect Types";
+  if (pathname.startsWith("/quality-inspections/")) return "Inspection Details";
+  if (pathname.startsWith("/quality-inspections")) return "Quality Inspections";
+  if (pathname.startsWith("/quality/summary")) return "Quality Summary";
+
+  if (pathname.startsWith("/production-plans/calendar")) return "Planning Calendar";
+  if (pathname.startsWith("/production-plans/planned-vs-actual")) return "Planned vs Actual";
+  if (pathname.startsWith("/production-plans")) return "Production Plans";
+
   if (pathname.startsWith("/reports/production")) return "Production Report";
   if (pathname.startsWith("/reports/orders")) return "Orders Report";
+  if (pathname.startsWith("/reports/inventory")) return "Inventory Report";
+  if (pathname.startsWith("/reports/consumption")) return "Consumption Report";
+  if (pathname.startsWith("/reports/productivity")) return "Productivity Report";
+  if (pathname.startsWith("/reports/quality")) return "Quality Report";
+  if (pathname.startsWith("/reports/planning")) return "Planning Report";
+
   if (pathname.startsWith("/users")) return "Users";
   if (pathname.startsWith("/profile")) return "Profile";
   return "Digital Factory";
@@ -38,7 +67,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
         </div>
 
         <div className="flex w-full items-center justify-end gap-2 sm:w-auto sm:gap-3">
-          <div className="max-w-[180px] rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 sm:max-w-none">
+          <div className="max-w-[200px] rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 sm:max-w-none">
             <p className="font-semibold text-slate-800">{user ? ROLE_LABELS[user.role] : "-"}</p>
             <p className="truncate">{user?.username}</p>
           </div>

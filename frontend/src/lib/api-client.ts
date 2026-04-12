@@ -18,6 +18,62 @@ export class ApiError extends Error {
 
 let refreshPromise: Promise<boolean> | null = null;
 
+function isJsonResponse(response: Response) {
+  return response.headers.get("content-type")?.includes("application/json") ?? false;
+}
+
+function collectErrorMessages(value: unknown, trail: string[] = []): string[] {
+  if (typeof value === "string") {
+    return [trail.length ? `${trail.join(".")}: ${value}` : value];
+  }
+
+  if (Array.isArray(value)) {
+    return value.flatMap((item) => collectErrorMessages(item, trail));
+  }
+
+  if (value && typeof value === "object") {
+    const entries = Object.entries(value as Record<string, unknown>);
+    return entries.flatMap(([key, nested]) => collectErrorMessages(nested, [...trail, key]));
+  }
+
+  return [];
+}
+
+function resolveErrorMessage(data: unknown, status: number): string {
+  if (typeof data === "string" && data.trim()) {
+    return data;
+  }
+
+  if (data && typeof data === "object") {
+    const payload = data as Record<string, unknown>;
+    const detail = payload.detail;
+    const message = payload.message;
+    if (typeof detail === "string" && detail.trim()) {
+      return detail;
+    }
+    if (typeof message === "string" && message.trim()) {
+      return message;
+    }
+
+    const flattened = collectErrorMessages(data);
+    if (flattened.length) {
+      return flattened[0];
+    }
+  }
+
+  if (status === 401) {
+    return "Authentication failed. Please sign in again.";
+  }
+  if (status === 403) {
+    return "You do not have permission to perform this action.";
+  }
+  if (status >= 500) {
+    return "Server error. Please try again in a moment.";
+  }
+
+  return "Request failed";
+}
+
 async function refreshAccessToken() {
   if (refreshPromise) return refreshPromise;
 
@@ -25,11 +81,17 @@ async function refreshAccessToken() {
     const refresh = getRefreshToken();
     if (!refresh) return false;
 
-    const response = await fetch(`${API_BASE_URL}/auth/refresh/`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refresh }),
-    });
+    let response: Response;
+    try {
+      response = await fetch(`${API_BASE_URL}/auth/refresh/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refresh }),
+      });
+    } catch {
+      clearTokens();
+      return false;
+    }
 
     if (!response.ok) {
       clearTokens();
@@ -54,24 +116,10 @@ async function parseResponse<T>(response: Response): Promise<T> {
     return null as T;
   }
 
-  const data = await response.json().catch(() => ({}));
+  const data = isJsonResponse(response) ? await response.json().catch(() => ({})) : await response.text().catch(() => "");
 
   if (!response.ok) {
-    const detail = (data as { detail?: string })?.detail;
-    const message = (data as { message?: string })?.message;
-
-    let firstFieldError = "";
-    if (!detail && !message && data && typeof data === "object") {
-      const [firstKey] = Object.keys(data as Record<string, unknown>);
-      const rawValue = (data as Record<string, unknown>)[firstKey];
-      if (Array.isArray(rawValue) && rawValue[0]) {
-        firstFieldError = String(rawValue[0]);
-      } else if (typeof rawValue === "string") {
-        firstFieldError = rawValue;
-      }
-    }
-
-    const resolvedMessage = detail || message || firstFieldError || "Request failed";
+    const resolvedMessage = resolveErrorMessage(data, response.status);
     throw new ApiError(resolvedMessage, response.status, data);
   }
 
@@ -80,7 +128,10 @@ async function parseResponse<T>(response: Response): Promise<T> {
 
 export async function apiRequest<T>(path: string, config: RequestConfig = {}, retry = true): Promise<T> {
   const headers = new Headers(config.headers || {});
-  headers.set("Content-Type", "application/json");
+  headers.set("Accept", "application/json");
+  if (!headers.has("Content-Type") && !(config.body instanceof FormData)) {
+    headers.set("Content-Type", "application/json");
+  }
 
   if (!config.skipAuth) {
     const token = getAccessToken();
@@ -89,10 +140,19 @@ export async function apiRequest<T>(path: string, config: RequestConfig = {}, re
     }
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...config,
-    headers,
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      ...config,
+      headers,
+    });
+  } catch (error) {
+    throw new ApiError(
+      error instanceof Error ? error.message : "Network error. Please check your connection.",
+      0,
+      null,
+    );
+  }
 
   if (response.status === 401 && !config.skipAuth && retry) {
     const refreshed = await refreshAccessToken();
@@ -108,14 +168,24 @@ export async function apiRequest<T>(path: string, config: RequestConfig = {}, re
 export async function apiDownload(path: string): Promise<Blob> {
   const token = getAccessToken();
   const headers = new Headers();
+  headers.set("Accept", "text/csv,application/json");
   if (token) {
     headers.set("Authorization", `Bearer ${token}`);
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    method: "GET",
-    headers,
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      method: "GET",
+      headers,
+    });
+  } catch (error) {
+    throw new ApiError(
+      error instanceof Error ? error.message : "Network error. Unable to download file.",
+      0,
+      null,
+    );
+  }
 
   if (response.status === 401) {
     const refreshed = await refreshAccessToken();
@@ -127,8 +197,10 @@ export async function apiDownload(path: string): Promise<Blob> {
   }
 
   if (!response.ok) {
-    const text = await response.text();
-    throw new ApiError("Download failed", response.status, text);
+    const payload = isJsonResponse(response)
+      ? await response.json().catch(() => ({}))
+      : await response.text().catch(() => "");
+    throw new ApiError(resolveErrorMessage(payload, response.status), response.status, payload);
   }
 
   return response.blob();
