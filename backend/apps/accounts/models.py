@@ -7,11 +7,16 @@ from apps.core.models import TimeStampedModel
 class User(AbstractUser, TimeStampedModel):
     class Role(models.TextChoices):
         ADMIN = "admin", "Admin"
+        STORE_MANAGER = "store_manager", "Store Manager"
+        PRODUCTION_SUPERVISOR = "production_supervisor", "Production Supervisor"
+        QUALITY_INSPECTOR = "quality_inspector", "Quality Inspector"
+        PLANNER = "planner", "Planner"
+        # Backward-compatible legacy supervisor role from Phase 1.
         SUPERVISOR = "supervisor", "Supervisor"
         VIEWER = "viewer", "Viewer"
 
     email = models.EmailField(unique=True)
-    role = models.CharField(max_length=20, choices=Role.choices, default=Role.VIEWER)
+    role = models.CharField(max_length=30, choices=Role.choices, default=Role.VIEWER)
 
     class Meta:
         ordering = ["-created_at"]

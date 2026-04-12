@@ -26,7 +26,12 @@ class ProductionEntryViewSet(viewsets.ModelViewSet):
         return super().get_queryset()
 
     def perform_create(self, serializer):
-        supervisor = self.request.user if self.request.user.role == self.request.user.Role.SUPERVISOR else None
+        supervisor = (
+            self.request.user
+            if self.request.user.role
+            in {self.request.user.Role.SUPERVISOR, self.request.user.Role.PRODUCTION_SUPERVISOR}
+            else None
+        )
         entry = serializer.save(supervisor=supervisor or serializer.validated_data.get("supervisor"))
         sync_order_status(entry.order, has_production_started=True)
 

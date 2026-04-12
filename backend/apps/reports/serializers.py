@@ -68,3 +68,80 @@ class OrdersReportSerializer(serializers.ModelSerializer):
         if obj.created_by is None:
             return "-"
         return obj.created_by.get_full_name() or obj.created_by.username
+
+
+class InventoryReportRowSerializer(serializers.Serializer):
+    material_id = serializers.IntegerField()
+    code = serializers.CharField()
+    name = serializers.CharField()
+    material_type = serializers.CharField()
+    unit = serializers.CharField()
+    is_active = serializers.BooleanField()
+    inward_total = serializers.DecimalField(max_digits=14, decimal_places=3)
+    issued_total = serializers.DecimalField(max_digits=14, decimal_places=3)
+    adjustment_increase_total = serializers.DecimalField(max_digits=14, decimal_places=3)
+    adjustment_decrease_total = serializers.DecimalField(max_digits=14, decimal_places=3)
+    current_stock = serializers.DecimalField(max_digits=14, decimal_places=3)
+
+
+class ConsumptionReportRowSerializer(serializers.Serializer):
+    order_id = serializers.IntegerField(allow_null=True)
+    order_code = serializers.CharField(allow_null=True)
+    buyer_name = serializers.CharField(allow_null=True)
+    material_id = serializers.IntegerField(allow_null=True)
+    material_code = serializers.CharField(allow_null=True)
+    material_name = serializers.CharField(allow_null=True)
+    unit = serializers.CharField(allow_null=True)
+    actual_consumption = serializers.DecimalField(max_digits=14, decimal_places=3)
+    expected_consumption = serializers.DecimalField(max_digits=14, decimal_places=3, allow_null=True)
+    variance = serializers.DecimalField(max_digits=14, decimal_places=3, allow_null=True)
+    wastage_percent = serializers.DecimalField(max_digits=10, decimal_places=2, allow_null=True)
+
+
+class ProductivityReportRowSerializer(serializers.Serializer):
+    worker_id = serializers.IntegerField(allow_null=True)
+    worker_code = serializers.CharField(allow_null=True)
+    worker_name = serializers.CharField(allow_null=True)
+    order_id = serializers.IntegerField(allow_null=True)
+    order_code = serializers.CharField(allow_null=True)
+    line_id = serializers.IntegerField(allow_null=True)
+    line_name = serializers.CharField(allow_null=True)
+    total_entries = serializers.IntegerField()
+    total_target = serializers.IntegerField()
+    total_actual = serializers.IntegerField()
+    total_rework = serializers.IntegerField()
+    efficiency = serializers.FloatField()
+
+
+class QualityReportRowSerializer(serializers.Serializer):
+    inspection_id = serializers.IntegerField()
+    date = serializers.DateField()
+    order_id = serializers.IntegerField(allow_null=True)
+    order_code = serializers.CharField(allow_null=True)
+    line_id = serializers.IntegerField(allow_null=True)
+    line_name = serializers.CharField(allow_null=True)
+    inspector_id = serializers.IntegerField(allow_null=True)
+    inspector_name = serializers.CharField(allow_null=True)
+    inspection_stage = serializers.CharField()
+    checked_qty = serializers.IntegerField()
+    defective_qty = serializers.IntegerField()
+    rejected_qty = serializers.IntegerField()
+    rework_qty = serializers.IntegerField()
+    defect_rate = serializers.FloatField()
+    rejection_rate = serializers.FloatField()
+
+
+class PlanningReportRowSerializer(serializers.Serializer):
+    plan_id = serializers.IntegerField()
+    order_id = serializers.IntegerField()
+    order_code = serializers.CharField()
+    line_id = serializers.IntegerField()
+    line_name = serializers.CharField()
+    planned_start_date = serializers.DateField()
+    planned_end_date = serializers.DateField()
+    planned_daily_target = serializers.IntegerField()
+    planned_total_qty = serializers.IntegerField()
+    actual_total_qty = serializers.IntegerField()
+    variance_qty = serializers.IntegerField()
+    achievement_percent = serializers.FloatField()
+    plan_status = serializers.CharField()

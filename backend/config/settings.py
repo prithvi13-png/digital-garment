@@ -52,6 +52,10 @@ INSTALLED_APPS = [
     "apps.production_lines.apps.ProductionLinesConfig",
     "apps.orders.apps.OrdersConfig",
     "apps.production.apps.ProductionConfig",
+    "apps.inventory.apps.InventoryConfig",
+    "apps.productivity.apps.ProductivityConfig",
+    "apps.quality.apps.QualityConfig",
+    "apps.planning.apps.PlanningConfig",
     "apps.dashboard.apps.DashboardConfig",
     "apps.reports.apps.ReportsConfig",
 ]
@@ -138,21 +142,40 @@ if not DEBUG:
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.User"
 
-CORS_ALLOWED_ORIGINS = env.list(
-    "CORS_ALLOWED_ORIGINS",
-    default=["http://localhost:3000"],
+def _clean_list(values):
+    cleaned = []
+    for value in values:
+        item = value.strip()
+        if item and item not in cleaned:
+            cleaned.append(item)
+    return cleaned
+
+
+CORS_ALLOWED_ORIGINS = _clean_list(
+    env.list(
+        "CORS_ALLOWED_ORIGINS",
+        default=["http://localhost:3000", "http://127.0.0.1:3000"],
+    )
 )
-CORS_ALLOWED_ORIGIN_REGEXES = env.list("CORS_ALLOWED_ORIGIN_REGEXES", default=[])
+CORS_ALLOWED_ORIGIN_REGEXES = _clean_list(env.list("CORS_ALLOWED_ORIGIN_REGEXES", default=[]))
 CORS_ALLOW_ALL_ORIGINS = env.bool("CORS_ALLOW_ALL_ORIGINS", default=False)
-CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
+CSRF_TRUSTED_ORIGINS = _clean_list(env.list("CSRF_TRUSTED_ORIGINS", default=[]))
 
 # Optional convenience variable to keep frontend origin config in one place.
-frontend_app_urls = env.list("FRONTEND_APP_URLS", default=[])
+frontend_app_urls = _clean_list(env.list("FRONTEND_APP_URLS", default=[]))
 for frontend_url in frontend_app_urls:
-    if frontend_url and frontend_url not in CORS_ALLOWED_ORIGINS:
+    if frontend_url not in CORS_ALLOWED_ORIGINS:
         CORS_ALLOWED_ORIGINS.append(frontend_url)
-    if frontend_url and frontend_url not in CSRF_TRUSTED_ORIGINS:
+    if frontend_url not in CSRF_TRUSTED_ORIGINS:
         CSRF_TRUSTED_ORIGINS.append(frontend_url)
+
+# Local development defaults to prevent accidental CORS lockouts.
+if DEBUG:
+    for local_origin in ("http://localhost:3000", "http://127.0.0.1:3000"):
+        if local_origin not in CORS_ALLOWED_ORIGINS:
+            CORS_ALLOWED_ORIGINS.append(local_origin)
+        if local_origin not in CSRF_TRUSTED_ORIGINS:
+            CSRF_TRUSTED_ORIGINS.append(local_origin)
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = env.bool("USE_X_FORWARDED_HOST", default=True)

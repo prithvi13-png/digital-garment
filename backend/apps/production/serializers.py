@@ -55,8 +55,10 @@ class ProductionEntrySerializer(serializers.ModelSerializer):
         return validate_non_negative(value, field_label="Rejected quantity")
 
     def validate_supervisor(self, value):
-        if value.role not in {value.Role.SUPERVISOR, value.Role.ADMIN}:
-            raise serializers.ValidationError("Supervisor must have role Supervisor or Admin.")
+        if value.role not in {value.Role.SUPERVISOR, value.Role.PRODUCTION_SUPERVISOR, value.Role.ADMIN}:
+            raise serializers.ValidationError(
+                "Supervisor must have role Supervisor, Production Supervisor, or Admin."
+            )
         return value
 
     def validate(self, attrs):
@@ -72,7 +74,7 @@ class ProductionEntrySerializer(serializers.ModelSerializer):
             left_field_name="rejected_qty",
         )
 
-        if request and request.user.role == request.user.Role.SUPERVISOR:
+        if request and request.user.role in {request.user.Role.SUPERVISOR, request.user.Role.PRODUCTION_SUPERVISOR}:
             supervisor = attrs.get("supervisor")
             if supervisor and supervisor != request.user:
                 raise serializers.ValidationError(

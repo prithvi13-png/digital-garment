@@ -1,9 +1,43 @@
 from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 ROLE_ADMIN = "admin"
+ROLE_STORE_MANAGER = "store_manager"
+ROLE_PRODUCTION_SUPERVISOR = "production_supervisor"
+ROLE_QUALITY_INSPECTOR = "quality_inspector"
+ROLE_PLANNER = "planner"
+# Backward-compatible legacy Phase 1 role.
 ROLE_SUPERVISOR = "supervisor"
 ROLE_VIEWER = "viewer"
-ALL_ROLES = (ROLE_ADMIN, ROLE_SUPERVISOR, ROLE_VIEWER)
+ALL_ROLES = (
+    ROLE_ADMIN,
+    ROLE_STORE_MANAGER,
+    ROLE_PRODUCTION_SUPERVISOR,
+    ROLE_QUALITY_INSPECTOR,
+    ROLE_PLANNER,
+    ROLE_SUPERVISOR,
+    ROLE_VIEWER,
+)
+
+PRODUCTION_WRITE_ROLES = (
+    ROLE_ADMIN,
+    ROLE_SUPERVISOR,
+    ROLE_PRODUCTION_SUPERVISOR,
+)
+
+INVENTORY_WRITE_ROLES = (
+    ROLE_ADMIN,
+    ROLE_STORE_MANAGER,
+)
+
+QUALITY_WRITE_ROLES = (
+    ROLE_ADMIN,
+    ROLE_QUALITY_INSPECTOR,
+)
+
+PLANNING_WRITE_ROLES = (
+    ROLE_ADMIN,
+    ROLE_PLANNER,
+)
 
 
 def _is_authenticated(user) -> bool:
@@ -66,7 +100,75 @@ class ProductionEntryPermission(RoleAccessPermission):
     """Admin: full access; Supervisor: create/update/read; Viewer: read-only."""
 
     read_roles = ALL_ROLES
-    write_roles = (ROLE_ADMIN, ROLE_SUPERVISOR)
+    write_roles = PRODUCTION_WRITE_ROLES
     delete_roles = (ROLE_ADMIN,)
-    owner_restricted_roles = (ROLE_SUPERVISOR,)
+    owner_restricted_roles = (ROLE_SUPERVISOR, ROLE_PRODUCTION_SUPERVISOR)
     owner_field = "supervisor_id"
+
+
+class InventoryMaterialPermission(RoleAccessPermission):
+    read_roles = ALL_ROLES
+    write_roles = INVENTORY_WRITE_ROLES
+    delete_roles = (ROLE_ADMIN,)
+
+
+class MaterialInwardPermission(RoleAccessPermission):
+    read_roles = ALL_ROLES
+    write_roles = INVENTORY_WRITE_ROLES
+    delete_roles = (ROLE_ADMIN, ROLE_STORE_MANAGER)
+
+
+class MaterialIssuePermission(RoleAccessPermission):
+    read_roles = ALL_ROLES
+    write_roles = (
+        ROLE_ADMIN,
+        ROLE_STORE_MANAGER,
+        ROLE_SUPERVISOR,
+        ROLE_PRODUCTION_SUPERVISOR,
+    )
+    delete_roles = (ROLE_ADMIN, ROLE_STORE_MANAGER)
+
+
+class StockAdjustmentPermission(RoleAccessPermission):
+    read_roles = ALL_ROLES
+    write_roles = INVENTORY_WRITE_ROLES
+    delete_roles = (ROLE_ADMIN,)
+
+
+class WorkerPermission(RoleAccessPermission):
+    read_roles = ALL_ROLES
+    write_roles = (
+        ROLE_ADMIN,
+        ROLE_SUPERVISOR,
+        ROLE_PRODUCTION_SUPERVISOR,
+    )
+    delete_roles = (ROLE_ADMIN,)
+
+
+class WorkerProductivityPermission(RoleAccessPermission):
+    read_roles = ALL_ROLES
+    write_roles = PRODUCTION_WRITE_ROLES
+    delete_roles = (ROLE_ADMIN,)
+
+
+class DefectTypePermission(RoleAccessPermission):
+    read_roles = ALL_ROLES
+    write_roles = QUALITY_WRITE_ROLES
+    delete_roles = (ROLE_ADMIN,)
+
+
+class QualityInspectionPermission(RoleAccessPermission):
+    read_roles = ALL_ROLES
+    write_roles = QUALITY_WRITE_ROLES
+    delete_roles = QUALITY_WRITE_ROLES
+
+
+class ProductionPlanPermission(RoleAccessPermission):
+    read_roles = ALL_ROLES
+    write_roles = PLANNING_WRITE_ROLES
+    delete_roles = (ROLE_ADMIN, ROLE_PLANNER)
+
+
+class ReportReadPermission(RoleAccessPermission):
+    read_roles = ALL_ROLES
+    write_roles = ()
