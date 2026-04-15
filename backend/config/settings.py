@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     "apps.planning.apps.PlanningConfig",
     "apps.dashboard.apps.DashboardConfig",
     "apps.reports.apps.ReportsConfig",
+    "apps.crm.apps.CRMConfig",
 ]
 
 MIDDLEWARE = [

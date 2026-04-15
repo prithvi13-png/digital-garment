@@ -4,12 +4,18 @@ import Image from "next/image";
 import {
   AlertTriangle,
   BadgeCheck,
+  BriefcaseBusiness,
   CalendarRange,
   ClipboardList,
+  ContactRound,
   Factory,
   FileBarChart2,
+  Handshake,
   LayoutDashboard,
+  ListTodo,
   Package2,
+  PanelsTopLeft,
+  PhoneCall,
   Receipt,
   ScanLine,
   Settings2,
@@ -44,6 +50,15 @@ type NavSection = {
 };
 
 const ADMIN_AND_SUPERVISOR: Role[] = ["admin", "supervisor", "production_supervisor"];
+const ALL_USERS: Role[] = [
+  "admin",
+  "store_manager",
+  "production_supervisor",
+  "quality_inspector",
+  "planner",
+  "supervisor",
+  "viewer",
+];
 
 const NAV_SECTIONS: NavSection[] = [
   {
@@ -75,6 +90,20 @@ const NAV_SECTIONS: NavSection[] = [
         icon: Package2,
         roles: ADMIN_AND_SUPERVISOR,
       },
+    ],
+  },
+  {
+    title: "CRM",
+    items: [
+      { label: "CRM Dashboard", href: "/crm/dashboard", icon: PanelsTopLeft, roles: ALL_USERS },
+      { label: "Leads", href: "/crm/leads", icon: BriefcaseBusiness, roles: ALL_USERS },
+      { label: "Accounts", href: "/crm/accounts", icon: Handshake, roles: ALL_USERS },
+      { label: "Contacts", href: "/crm/contacts", icon: ContactRound, roles: ALL_USERS },
+      { label: "Opportunities", href: "/crm/opportunities", icon: ShoppingBag, roles: ALL_USERS },
+      { label: "Activities", href: "/crm/activities", icon: PhoneCall, roles: ALL_USERS },
+      { label: "Tasks", href: "/crm/tasks", icon: ListTodo, roles: ALL_USERS },
+      { label: "Quotations", href: "/crm/quotations", icon: Receipt, roles: ALL_USERS },
+      { label: "CRM Settings", href: "/crm/settings", icon: Settings2, roles: ["admin"] },
     ],
   },
   {

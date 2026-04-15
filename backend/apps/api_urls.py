@@ -181,5 +181,6 @@ urlpatterns = [
         PlanningCsvExportAPIView.as_view(),
         name="report_export_planning_csv",
     ),
+    path("crm/", include("apps.crm.urls")),
     path("", include(router.urls)),
 ]

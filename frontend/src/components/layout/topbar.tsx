@@ -10,6 +10,15 @@ import { useTheme } from "@/lib/theme-provider";
 
 function getPageTitle(pathname: string) {
   if (pathname.startsWith("/dashboard")) return "Dashboard";
+  if (pathname.startsWith("/crm/dashboard")) return "CRM Dashboard";
+  if (pathname.startsWith("/crm/leads")) return "CRM Leads";
+  if (pathname.startsWith("/crm/accounts")) return "CRM Accounts";
+  if (pathname.startsWith("/crm/contacts")) return "CRM Contacts";
+  if (pathname.startsWith("/crm/opportunities")) return "CRM Opportunities";
+  if (pathname.startsWith("/crm/activities")) return "CRM Activities";
+  if (pathname.startsWith("/crm/tasks")) return "CRM Tasks";
+  if (pathname.startsWith("/crm/quotations")) return "CRM Quotations";
+  if (pathname.startsWith("/crm/settings")) return "CRM Settings";
   if (pathname.startsWith("/buyers")) return "Buyers";
   if (pathname.startsWith("/lines")) return "Production Lines";
   if (pathname.startsWith("/orders")) return "Orders";

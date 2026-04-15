@@ -24,8 +24,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" data-theme="light" suppressHydrationWarning>
-      <body className={`${manrope.variable} ${sora.variable} min-h-screen text-slate-900 antialiased`}>
+    <html lang="en" data-theme="dark" suppressHydrationWarning>
+      <body suppressHydrationWarning className={`${manrope.variable} ${sora.variable} min-h-screen text-slate-900 antialiased`}>
         <Providers>{children}</Providers>
       </body>
     </html>

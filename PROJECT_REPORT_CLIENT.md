@@ -1,429 +1,432 @@
 # Digital Factory Management System
-## End-to-End Client Project Report
+## End-to-End Detailed Project Report (Client Handover)
 
-**Project**: Digital Factory Management System  
-**Prepared For**: Client Handover / Stakeholder Review  
-**Prepared On**: April 12, 2026  
-**Prepared By**: Engineering Team
+**Project**: Digital Factory Management System (ERP + CRM)
+**Prepared For**: Client Delivery & Operations Leadership
+**Version**: v2.0 Handover
+**Prepared On**: April 15, 2026
+**Prepared By**: Product Engineering Team
 
 ---
 
 ## 1. Executive Summary
 
-The Digital Factory Management System is a full-stack web platform built to digitize and centralize key factory operations for garment manufacturing.  
-It provides role-based access, real-time operational visibility, production tracking, inventory control, quality management, worker productivity analysis, planning workflows, and downloadable management reports.
+The Digital Factory Management System is a production-grade, full-stack business platform that combines factory operations, planning, quality, inventory, productivity, reporting, and a newly integrated **CRM + reusable Kanban engine** in a single ERP ecosystem.
 
-The product is designed to reduce manual tracking, improve production predictability, support data-driven decisions, and increase operational transparency across departments.
+The platform is designed for operational control and revenue workflow execution:
 
----
+1. **Factory Operations**: orders, daily production, materials, quality, workforce, planning.
+2. **Revenue Operations (CRM)**: leads, accounts, contacts, opportunities, activities, tasks, quotations, timeline, dashboard.
+3. **Execution Layer**: premium table/list workflows + reusable Kanban workflows.
+4. **Governance Layer**: role-based access, API permissions, audit-ready event trail.
 
-## 2. Business Objectives
-
-The solution addresses these core business needs:
-
-1. Centralized control of production operations.
-2. Real-time visibility of order progress, quality outcomes, and material status.
-3. Role-based accountability across admin, planners, supervisors, inspectors, store managers, and viewers.
-4. Faster decision-making through dashboards and report exports.
-5. Reduced operational errors through validations and standardized workflows.
+This release focuses on production readiness, scale-safe architecture, and a premium SaaS-grade operator experience for both desktop and mobile web.
 
 ---
 
-## 3. Solution Scope
+## 2. Delivery Scope
 
-### 3.1 In Scope (Implemented)
+### 2.1 Delivered Modules
 
-1. Authentication and JWT session management.
-2. Role-based access control (RBAC).
-3. Master data management:
-   - Users
-   - Buyers
-   - Production lines
-   - Materials
-   - Workers
-   - Defect types
-4. Order lifecycle management.
-5. Production entry logging.
-6. Inventory inward, issue, adjustment, and stock analytics.
-7. Worker productivity tracking and summaries.
-8. Quality inspection workflows and defect trend analysis.
-9. Production planning, planning calendar, planned-vs-actual analysis.
-10. Dashboard KPIs and recent activity summaries.
-11. Multi-domain reports with CSV export support.
+### Core ERP
 
-### 3.2 Out of Scope (Current Phase)
+1. Authentication & session lifecycle (JWT)
+2. Users, buyers, production lines
+3. Orders & order lifecycle visibility
+4. Production entries & progress capture
+5. Inventory (materials, inward, issues, adjustments, stock summary, variance)
+6. Workforce (workers, productivity entries, productivity summary)
+7. Quality (defect types, inspections, quality summaries)
+8. Planning (plans, calendar, planned-vs-actual)
+9. Reports hub + CSV exports
 
-1. Mobile-native app delivery.
-2. ERP/Accounting integrations.
-3. IoT machine telemetry integrations.
-4. Multi-tenant organization partitioning.
-5. Advanced forecasting/ML modules.
+### CRM Module (New)
 
----
+1. CRM dashboard
+2. Leads
+3. Accounts / Companies
+4. Contacts
+5. Opportunities / Deals
+6. Activities
+7. Tasks / Follow-ups
+8. Notes / internal collaboration
+9. Quotations + quote items
+10. Timeline / audit feed
+11. CRM settings (pipelines, stages, options, tags, custom fields)
+12. Assignment, bulk actions, and conversion flows
 
-## 4. User Roles and Access Model
+### Reusable Kanban Engine (New)
 
-Implemented user roles:
+1. Generic board model and configuration
+2. Stage-based cards for leads, opportunities, tasks
+3. Drag-and-drop stage movement with backend validation
+4. Board summaries, filters, owner/priority/search support
+5. Transition history + audit capture
+6. Extensible architecture for future module adapters (orders/support/approvals)
 
-1. `admin`
-2. `store_manager`
-3. `production_supervisor`
-4. `quality_inspector`
-5. `planner`
-6. `supervisor` (legacy compatible role)
-7. `viewer`
+### UI/UX Enhancements
 
-### Access Principle
-
-- Access is controlled on both backend API permissions and frontend navigation visibility.
-- Sensitive administrative actions (for example user lifecycle actions) are restricted to admin-level access.
-- Read-only or limited workflows are available to viewer-type users as configured.
+1. Premium login experience
+2. Dark theme as default with light mode switch
+3. Sidebar/topbar premium refresh
+4. Drawer-first quick interaction model for CRM entities
+5. Responsive behavior improvements for desktop/tablet/mobile
 
 ---
 
-## 5. Technology Stack
+## 3. System Architecture
 
-### 5.1 Frontend
+```mermaid
+flowchart LR
+    U["End Users"] --> FE["Next.js Frontend\n(Cloudflare-ready)"]
+    FE --> API["Django + DRF API\n(Render Web Service)"]
+    API --> DB["PostgreSQL\n(Render Managed DB)"]
+    API --> AUD["Audit/Timeline Events"]
+    FE --> KBN["Reusable Kanban UI Engine"]
+    API --> KBS["Reusable Kanban Service Layer"]
+```
 
-1. Next.js 16 (App Router, TypeScript)
-2. React 19
-3. Tailwind CSS
-4. React Query
-5. React Hook Form + Zod
-6. Recharts
-7. OpenNext for Cloudflare deployment
-
-### 5.2 Backend
+### 3.1 Backend Stack
 
 1. Django 5
 2. Django REST Framework
 3. django-filter
-4. SimpleJWT (access + refresh token model)
-5. WhiteNoise (static serving strategy for production service model)
-6. Gunicorn (WSGI process server)
+4. SimpleJWT
+5. Gunicorn + WhiteNoise
 
-### 5.3 Database
+### 3.2 Frontend Stack
 
-1. PostgreSQL (production)
-2. SQLite (possible local development option)
+1. Next.js 16 (App Router)
+2. React 19 + TypeScript
+3. Tailwind CSS
+4. TanStack Query
+5. React Hook Form + Zod
+6. dnd-kit for Kanban drag-drop
+
+### 3.3 Deployment Topology
+
+1. Backend deployment via Render Blueprint (`render.yaml`, autoDeploy enabled)
+2. Frontend Cloudflare/OpenNext ready (`npm run deploy` script available)
+3. Git-based release flow from `main`
 
 ---
 
-## 6. Architecture Overview
+## 4. Security, Auth & Access Control
 
-```mermaid
-flowchart LR
-    U["Factory Users"] --> FE["Next.js Frontend<br/>Cloudflare Worker"]
-    FE --> API["Django REST API<br/>Render Web Service"]
-    API --> DB["PostgreSQL<br/>Render Managed DB"]
-    API --> LOG["Activity Logs"]
-    FE --> REP["CSV Report Downloads"]
+1. JWT-based authentication (`access` + `refresh`)
+2. Backend permission classes enforce action-level controls
+3. Role-based feature visibility in frontend navigation
+4. CRM settings APIs restricted to elevated roles
+5. Assignment/stage-change/audit events persisted for traceability
+
+---
+
+## 5. Detailed Functional Coverage
+
+## 5.1 CRM: Lead Management
+
+1. Lead creation/edit/list/detail
+2. Lead status & priority management
+3. Source tracking and value capture
+4. Assignment and follow-up fields
+5. Lead-to-account/contact/opportunity conversion endpoint
+6. Lead Kanban and list workflows
+7. Lead timeline integration (activities/notes/tasks/audit)
+
+## 5.2 CRM: Accounts & Contacts
+
+1. Account 360 data structure with linked contacts/deals/quotes/activities/tasks
+2. Contact ownership, preferred contact mode, primary contact flag
+3. Tags + custom fields support
+4. Account/contact filters and searchable list endpoints
+
+## 5.3 CRM: Opportunities
+
+1. Deal lifecycle with pipeline + stage
+2. Probability and weighted value handling
+3. Win/loss markers and reasons
+4. Stage movement API with validation
+5. Opportunity Kanban/list and timeline integration
+
+## 5.4 CRM: Activities, Tasks, Notes
+
+1. Activity types: call/email/meeting/follow-up/demo/etc.
+2. Task statuses and due-date execution tracking
+3. Internal notes on core CRM entities
+4. Reminder model for upcoming/overdue workflows
+
+## 5.5 CRM: Quotations
+
+1. Quote creation linked to opportunity/account/contact
+2. Quote items with tax/discount/line totals
+3. Quote status flow (draft/sent/viewed/accepted/rejected/expired/revised)
+4. Quote-to-order integration-ready field (`converted_order`)
+
+## 5.6 CRM: Dashboard & Analytics
+
+1. Total leads, source split, status split, owner split
+2. Opportunity stage analytics
+3. Pipeline value and weighted pipeline value
+4. Won/lost/open deal metrics
+5. Conversion and follow-up indicators
+6. Top performers aggregation
+
+## 5.7 Reusable Kanban Engine
+
+1. Shared backend adapter/service architecture by module key
+2. Generic board fetch endpoint with columns/cards/summary/meta
+3. Generic move endpoint with transition checks + audit capture
+4. Frontend reusable components:
+   - `KanbanBoard`
+   - `KanbanColumn`
+   - `KanbanCard`
+   - `KanbanToolbar`
+   - `KanbanSummaryBar`
+   - `KanbanQuickViewDrawer`
+5. Module-specific adapters for leads/opportunities/tasks
+
+---
+
+## 6. API Delivery Summary
+
+Base path: `/api/v1/`
+
+### 6.1 Core ERP APIs
+
+1. Auth (`/auth/*`)
+2. Users, buyers, lines, orders, production entries
+3. Inventory, quality, planning, dashboard, reports
+
+### 6.2 CRM APIs
+
+1. CRUD:
+   - `/crm/leads/`
+   - `/crm/accounts/`
+   - `/crm/contacts/`
+   - `/crm/opportunities/`
+   - `/crm/activities/`
+   - `/crm/tasks/`
+   - `/crm/notes/`
+   - `/crm/quotations/`
+2. Config:
+   - `/crm/tags/`
+   - `/crm/pipelines/`
+   - `/crm/pipeline-stages/`
+   - `/crm/options/`
+   - `/crm/custom-fields/`
+   - `/crm/kanban-config/`
+3. Workflow:
+   - `/crm/leads/{id}/convert/`
+   - `/crm/kanban/boards/{module_key}/`
+   - `/crm/kanban/move/`
+   - `/crm/timeline/`
+   - `/crm/dashboard/summary/`
+   - `/crm/filters/metadata/`
+   - `/crm/bulk-actions/`
+   - `/crm/assign/`
+
+---
+
+## 7. Frontend Route Coverage
+
+### ERP
+
+1. `/dashboard`
+2. `/orders`, `/orders/[id]`
+3. `/production-entries`
+4. `/materials`, `/material-inward`, `/material-issues`, `/stock-adjustments`
+5. `/inventory/stock-summary`, `/inventory/consumption-variance`
+6. `/workers`, `/worker-productivity`, `/worker-productivity/summary`
+7. `/defect-types`, `/quality-inspections`, `/quality/summary`
+8. `/production-plans`, `/production-plans/calendar`, `/production-plans/planned-vs-actual`
+9. `/reports/*`
+
+### CRM
+
+1. `/crm`
+2. `/crm/dashboard`
+3. `/crm/leads`
+4. `/crm/accounts`
+5. `/crm/contacts`
+6. `/crm/opportunities`
+7. `/crm/activities`
+8. `/crm/tasks`
+9. `/crm/quotations`
+10. `/crm/settings`
+
+### Auth/Profile
+
+1. `/login`
+2. `/profile`
+
+---
+
+## 8. Data Model Summary (CRM)
+
+Major CRM entities implemented:
+
+1. `CRMLead`
+2. `CRMAccount`
+3. `CRMContact`
+4. `CRMOpportunity`
+5. `CRMActivity`
+6. `CRMTask`
+7. `CRMNote`
+8. `CRMQuotation`
+9. `CRMQuotationItem`
+10. `CRMTag`
+11. `CRMPipeline`
+12. `CRMPipelineStage`
+13. `CRMOption`
+14. `CRMCustomFieldDefinition`
+15. `CRMCustomFieldValue`
+16. `CRMKanbanBoardConfig`
+17. `CRMAuditEvent`
+18. `CRMStageTransitionHistory`
+19. `CRMAssignmentHistory`
+20. `CRMReminder`
+21. `CRMImportJob`
+
+This structure is designed for long-term extensibility and reusable workflow orchestration.
+
+---
+
+## 9. QA, Validation & Stability
+
+### 9.1 Backend
+
+1. Django system checks passing
+2. CRM API test suite passing (`apps.crm.tests.test_api`)
+3. Seed command validated with CRM + ERP sample data
+
+### 9.2 Frontend
+
+1. Lint passing
+2. Production build passing
+3. Hydration mismatch mitigation applied (root layout updates)
+4. Theme behavior stabilized for dark-default experience
+
+---
+
+## 10. Demo Data & Credentials
+
+### 10.1 Seed Command
+
+```bash
+cd backend
+./venv/bin/python manage.py seed_data --reset-crm
 ```
 
-### Key Characteristics
+### 10.2 Seeded CRM Snapshot
 
-1. Stateless API layer with JWT authentication.
-2. Clean separation of frontend UI and backend service.
-3. Environment-driven configuration for host/origin/security controls.
-4. Deployable to cloud environments with managed DB and CDN edge delivery.
+1. 7 leads
+2. 4 accounts
+3. 5 contacts
+4. 6 opportunities
+5. 5 activities
+6. 5 tasks
+7. 3 quotations
 
----
+### 10.3 Demo Logins
 
-## 7. Functional Module Breakdown
-
-### 7.1 Authentication & Session
-
-1. Login with username/password.
-2. JWT access token + refresh token lifecycle.
-3. Current-user profile endpoint for session restoration.
-4. Auto-refresh behavior in API client.
-
-### 7.2 User Management
-
-1. Create, update, list, and deactivate/delete users.
-2. Role assignment.
-3. Guardrails such as preventing self-delete.
-4. Activity logging for key lifecycle events.
-
-### 7.3 Buyer Management
-
-1. Buyer master records.
-2. Contact, company, and notes capture.
-3. Integration with order creation.
-
-### 7.4 Production Lines
-
-1. Line setup and status management.
-2. Used by production, planning, inventory issue, and productivity flows.
-
-### 7.5 Order Management
-
-1. Order creation with buyer linkage, stage, priority, and delivery date.
-2. Auto-generated order code format.
-3. Status logic derived from production activity and delivery context.
-4. Order-level production summaries.
-
-### 7.6 Production Entries
-
-1. Daily output entry by line, order, and supervisor.
-2. Validation: rejected quantity cannot exceed produced quantity.
-3. Efficiency calculation support.
-
-### 7.7 Inventory Management
-
-1. Material master (type, unit, barcode optional).
-2. Material inward transactions.
-3. Material issue transactions (line/order-linked).
-4. Stock adjustments (increase/decrease).
-5. Stock summary, stock movement, low-stock, and consumption-variance analytics.
-
-### 7.8 Workforce & Productivity
-
-1. Worker master with line assignment and skills.
-2. Worker productivity entries by date/order/line.
-3. Efficiency and rework-aware metrics.
-4. Worker, line, and overall productivity summary endpoints.
-
-### 7.9 Quality Management
-
-1. Defect type master with severity levels.
-2. Quality inspections by stage (inline/endline/final).
-3. Defect capture at inspection level.
-4. Defect/rejection trends and summary analytics.
-5. Validation checks on inspected vs passed/defective/rejected values.
-
-### 7.10 Planning
-
-1. Production plan creation by order and line.
-2. Planning calendar view endpoints.
-3. Planned-vs-actual analytics.
-4. Business validation for:
-   - Date range validity
-   - Line plan overlap prevention
-   - Planned quantity not exceeding remaining order quantity
-
-### 7.11 Dashboard & Reporting
-
-1. KPI summary endpoints.
-2. Line performance data.
-3. Recent activity stream.
-4. Domain reports:
-   - Production
-   - Orders
-   - Inventory
-   - Consumption
-   - Productivity
-   - Quality
-   - Planning
-5. CSV export endpoints for each report domain.
+1. Admin: `admin / Admin@123`
+2. Supervisor: `sup_amit / Supervisor@123`
+3. Supervisor: `sup_neha / Supervisor@123`
+4. Planner: `planner_om / Planner@123`
+5. Quality: `qc_riya / Quality@123`
+6. Store: `store_maya / Store@123`
+7. Viewer: `viewer_raj / Viewer@123`
 
 ---
 
-## 8. Frontend Feature Coverage (Page-Level)
+## 11. Deployment & Release Notes
 
-Implemented major pages include:
+### 11.1 Backend (Render)
 
-1. Authentication:
-   - `/login`
-2. Dashboard:
-   - `/dashboard`
-3. Core Operations:
-   - `/buyers`, `/buyers/[id]`
-   - `/lines`
-   - `/orders`, `/orders/[id]`
-   - `/production-entries`
-4. Inventory:
-   - `/materials`, `/materials/[id]`
-   - `/material-inward`
-   - `/material-issues`
-   - `/stock-adjustments`
-   - `/inventory/stock-summary`
-   - `/inventory/consumption-variance`
-5. Workforce:
-   - `/workers`, `/workers/[id]`
-   - `/worker-productivity`
-   - `/worker-productivity/summary`
-6. Quality:
-   - `/defect-types`
-   - `/quality-inspections`, `/quality-inspections/[id]`
-   - `/quality/summary`
-7. Planning:
-   - `/production-plans`
-   - `/production-plans/calendar`
-   - `/production-plans/planned-vs-actual`
-8. Reports:
-   - `/reports/production`
-   - `/reports/orders`
-   - `/reports/inventory`
-   - `/reports/consumption`
-   - `/reports/productivity`
-   - `/reports/quality`
-   - `/reports/planning`
-9. Administration:
-   - `/users`
-   - `/profile`
+1. `render.yaml` uses `autoDeploy: true`
+2. `main` push triggers deployment
+3. Startup command includes migrations and idempotent seeding guard
+
+### 11.2 Frontend (Cloudflare-ready)
+
+1. Build script: `npm run build`
+2. Deploy script: `npm run deploy`
+3. Ensure production env uses correct API base URL and CORS-matching domains
+
+### 11.3 Mandatory Production Config Validation
+
+1. `ALLOWED_HOSTS`
+2. `CORS_ALLOWED_ORIGINS`
+3. `CSRF_TRUSTED_ORIGINS`
+4. `BACKEND_PUBLIC_URL`
+5. Frontend `NEXT_PUBLIC_API_BASE_URL`
 
 ---
 
-## 9. Backend API Coverage (High-Level)
+## 12. Operational Runbook (Post-Go-Live)
 
-Base API path: `/api/v1/`
-
-### Core Endpoint Groups
-
-1. Health:
-   - `GET /health/`
-2. Authentication:
-   - `POST /auth/login/`
-   - `POST /auth/refresh/`
-   - `GET /auth/me/`
-3. CRUD Resource Sets:
-   - `/users/`
-   - `/buyers/`
-   - `/lines/`
-   - `/orders/`
-   - `/production-entries/`
-   - `/materials/`
-   - `/material-inward/`
-   - `/material-issues/`
-   - `/stock-adjustments/`
-   - `/workers/`
-   - `/worker-productivity/`
-   - `/defect-types/`
-   - `/quality-inspections/`
-   - `/production-plans/`
-4. Analytics + Reporting:
-   - Dashboard summary, line performance, recent activities
-   - Inventory analytics endpoints
-   - Productivity summaries
-   - Quality trends/summaries
-   - Planning calendar/planned-vs-actual
-   - Reports and CSV exports
+1. Monitor health endpoint `/api/v1/health/`
+2. Monitor login success/failure rates
+3. Review API logs for CORS/CSRF/auth errors
+4. Validate dashboard and CRM board loads across desktop/mobile
+5. Run backup and restore drill on managed database
+6. Track overdue CRM activities/tasks as adoption KPI
 
 ---
 
-## 10. Data Model Summary
+## 13. Business Impact (Expected)
 
-Key data entities and relations:
-
-1. `User` -> role-based actor model.
-2. `Buyer` -> order customer master.
-3. `Order` -> central production demand object.
-4. `ProductionLine` -> capacity/work-center unit.
-5. `ProductionEntry` -> execution records against orders/lines.
-6. `Material`, `MaterialStockInward`, `MaterialStockIssue`, `StockAdjustment` -> inventory ledger model.
-7. `Worker`, `WorkerProductivityEntry` -> workforce and performance data.
-8. `DefectType`, `QualityInspection`, `QualityInspectionDefect` -> quality model.
-9. `ProductionPlan` -> planned capacity allocation.
-10. `ActivityLog` -> auditable activity trail.
-
-Validation constraints are implemented at model level to preserve data quality.
+1. Faster lead-to-deal execution due to unified CRM + operations data
+2. Better planning accuracy from integrated production and sales visibility
+3. Reduced manual coordination overhead across teams
+4. Improved accountability via owner assignments, stage history, and audit events
+5. Better leadership decisions through dashboard + report coverage
 
 ---
 
-## 11. Security and Governance
+## 14. Recommended Next Phase
 
-### 11.1 Authentication & Authorization
-
-1. JWT-based auth (`Bearer` token).
-2. DRF default permission set to authenticated access.
-3. Role-specific permission classes for protected modules.
-
-### 11.2 Web/API Security Controls
-
-1. Configurable `ALLOWED_HOSTS`.
-2. CORS allow-list based policy (`CORS_ALLOWED_ORIGINS`).
-3. CSRF trusted origin configuration for browser-based flows.
-4. Secure-cookie and HSTS controls available for production mode.
-5. Proxy SSL header support for cloud reverse-proxy deployment.
+1. WhatsApp/email activity integrations
+2. Quote PDF generation and approval workflow
+3. Advanced CRM analytics (funnel cohorts, stage SLA)
+4. Pipeline automation rules (triggers/reminders/escalations)
+5. Customer portal and order status sharing
+6. Native mobile app (if required)
 
 ---
 
-## 12. Deployment and Production Topology
+## 15. Handover Checklist
 
-### 12.1 Recommended/Configured Production Pattern
-
-1. Frontend: Cloudflare Worker deployment (`vaeyu-erp`) with route:
-   - `erp.vaeyuinnovations.com/*`
-2. Backend: Render web service (`digital-factory-backend`).
-3. Database: Render managed PostgreSQL (`digital-factory-postgres`).
-
-### 12.2 Runtime Configuration Highlights
-
-1. Backend auto-deploy enabled (`render.yaml`).
-2. Health endpoint path configured for uptime checks (`/api/v1/health/`).
-3. CORS/CSRF trusted origins configured for production frontend domains.
-4. `BACKEND_PUBLIC_URL` configured for public API endpoint use.
+1. Source code delivered and pushed to `main`
+2. Deployment pipeline connected
+3. Environment variables documented
+4. Seed and test commands documented
+5. Client user credentials shared securely
+6. Release notes and feature map completed
+7. Support and next-phase roadmap outlined
 
 ---
 
-## 13. Operations and Release Process
+## Appendix A: Important Commands
 
-Typical release workflow:
+```bash
+# Backend
+cd backend
+./venv/bin/python manage.py migrate
+./venv/bin/python manage.py seed_data --reset-crm
+./venv/bin/python manage.py test apps.crm.tests.test_api
 
-1. Implement feature/fix.
-2. Run local checks (`typecheck`, backend checks, smoke tests).
-3. Commit and push to repository main branch.
-4. Backend auto-deploy (Render) triggers from repository updates.
-5. Frontend deploy via OpenNext + Wrangler (`npm run deploy`).
-6. Validate production URLs and critical flows (login, dashboard, report export).
-
----
-
-## 14. QA and Validation Checklist
-
-Before client sign-off, validate:
-
-1. Login/logout and token refresh behavior.
-2. Role-based menu visibility and access restrictions.
-3. CRUD for buyers, lines, orders, materials, workers, defect types.
-4. Production entry and quality inspection validations.
-5. Inventory stock calculations and variance outputs.
-6. Planning overlap and quantity constraints.
-7. Dashboard KPI values and chart rendering.
-8. Report filtering and CSV exports.
-9. Production domain CORS configuration for frontend origin.
-10. Health endpoint and uptime checks.
+# Frontend
+cd frontend
+npm install
+npm run lint
+npm run build
+# (Cloudflare target)
+npm run deploy
+```
 
 ---
 
-## 15. Known Risks and Recommendations
+## Appendix B: Project Positioning Statement
 
-1. Ensure all production credentials are rotated and managed in platform secrets (not in repository files).
-2. Add scheduled backup verification and restore drill for database continuity.
-3. Add API integration tests and end-to-end browser tests for regression prevention.
-4. Introduce audit dashboards and alerting for key operational failures.
-5. Plan phased integration with barcode scanners and procurement/accounting systems where required.
-
----
-
-## 16. Handover Assets
-
-The following are included in this repository:
-
-1. Root project setup guide (`README.md`).
-2. Backend operational guide (`backend/README.md`).
-3. Frontend operational guide (`frontend/README.md`).
-4. Infrastructure-as-code style deployment baseline (`render.yaml`).
-5. Seed-data command for demo and onboarding environments.
-
----
-
-## 17. Client Sign-Off Template
-
-**Client Representative**: ____________________  
-**Date**: ____________________  
-**Environment Validated**: ____________________  
-**Accepted Scope**: ____________________  
-**Comments / Open Items**: ____________________
-
----
-
-## Appendix A: Suggested Next-Phase Enhancements
-
-1. Advanced production forecasting and bottleneck prediction.
-2. Raw material auto-reorder threshold workflows.
-3. Multi-factory support with tenant-level segmentation.
-4. SLA dashboards for delivery and rejection trend monitoring.
-5. Barcode scanner mobile companion app.
-
+Digital Factory Management System is now positioned as a **factory operations + revenue operations business OS**, where manufacturing execution and sales pipeline execution are connected through one scalable, premium, modular platform.
