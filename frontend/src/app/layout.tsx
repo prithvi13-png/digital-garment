@@ -1,14 +1,20 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Manrope, Sora } from "next/font/google";
 
 import { Providers } from "@/lib/providers";
 
 import "./globals.css";
 
-const inter = Inter({
+const manrope = Manrope({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-sans",
+});
+
+const sora = Sora({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-display",
 });
 
 export const metadata: Metadata = {
@@ -18,8 +24,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.variable} min-h-screen bg-slate-50 text-slate-900 antialiased`}>
+    <html lang="en" data-theme="light" suppressHydrationWarning>
+      <body className={`${manrope.variable} ${sora.variable} min-h-screen text-slate-900 antialiased`}>
         <Providers>{children}</Providers>
       </body>
     </html>

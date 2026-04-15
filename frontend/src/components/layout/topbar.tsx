@@ -1,11 +1,12 @@
 "use client";
 
-import { Menu } from "lucide-react";
+import { Menu, MoonStar, SunMedium } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import { useAuth } from "@/components/auth/auth-provider";
 import { Button } from "@/components/ui/button";
 import { ROLE_LABELS } from "@/lib/constants";
+import { useTheme } from "@/lib/theme-provider";
 
 function getPageTitle(pathname: string) {
   if (pathname.startsWith("/dashboard")) return "Dashboard";
@@ -52,28 +53,41 @@ function getPageTitle(pathname: string) {
 export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   const pathname = usePathname();
   const { user, signOut } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   return (
-    <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/85 px-3 py-3 backdrop-blur-lg sm:px-4 lg:px-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <Button variant="secondary" className="lg:hidden" onClick={onMenuClick}>
-            <Menu className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-lg font-semibold text-slate-900 sm:text-xl">{getPageTitle(pathname)}</h1>
-            <p className="text-xs text-slate-500">Factory operations at a glance</p>
+    <header className="sticky top-0 z-30 px-3 py-3 sm:px-4 lg:px-8">
+      <div className="premium-panel rounded-3xl px-4 py-3 sm:px-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <Button variant="secondary" className="lg:hidden" onClick={onMenuClick}>
+              <Menu className="h-4 w-4" />
+            </Button>
+            <div>
+              <h1 className="text-lg font-semibold text-slate-900 sm:text-xl">{getPageTitle(pathname)}</h1>
+              <p className="text-xs font-medium uppercase tracking-[0.08em] text-slate-500">Factory command center</p>
+            </div>
           </div>
-        </div>
 
-        <div className="flex w-full items-center justify-end gap-2 sm:w-auto sm:gap-3">
-          <div className="max-w-[200px] rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 sm:max-w-none">
-            <p className="font-semibold text-slate-800">{user ? ROLE_LABELS[user.role] : "-"}</p>
-            <p className="truncate">{user?.username}</p>
+          <div className="flex w-full items-center justify-end gap-2 sm:w-auto sm:gap-3">
+            <Button
+              variant="secondary"
+              onClick={toggleTheme}
+              className="min-w-10 px-3"
+              title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+              aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+            >
+              {theme === "light" ? <MoonStar className="h-4 w-4" /> : <SunMedium className="h-4 w-4" />}
+            </Button>
+
+            <div className="max-w-[220px] rounded-2xl border border-[#d7e3f6] bg-gradient-to-br from-white to-slate-50 px-3 py-2 text-xs text-slate-700 shadow-[0_8px_20px_rgba(30,64,175,0.09)] sm:max-w-none">
+              <p className="font-semibold tracking-[0.01em] text-slate-800">{user ? ROLE_LABELS[user.role] : "-"}</p>
+              <p className="truncate text-slate-500">{user?.username}</p>
+            </div>
+            <Button variant="secondary" onClick={signOut}>
+              Logout
+            </Button>
           </div>
-          <Button variant="secondary" onClick={signOut}>
-            Logout
-          </Button>
         </div>
       </div>
     </header>
