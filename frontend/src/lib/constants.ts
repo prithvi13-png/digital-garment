@@ -10,8 +10,41 @@ import {
   Status,
 } from "@/types/api";
 
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
+const LOCAL_API_BASE_URL = "http://localhost:8000/api/v1";
+const PROD_API_BASE_URL = "https://digital-factory-backend.onrender.com/api/v1";
+
+function isLocalHostname(hostname: string) {
+  return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
+}
+
+function isLocalApiUrl(apiUrl: string) {
+  try {
+    const parsed = new URL(apiUrl);
+    return isLocalHostname(parsed.hostname);
+  } catch {
+    return apiUrl.includes("localhost") || apiUrl.includes("127.0.0.1");
+  }
+}
+
+function resolveApiBaseUrl() {
+  const configured = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
+  const runtimeHostname = typeof window !== "undefined" ? window.location.hostname : "";
+  const runtimeIsLocal = runtimeHostname
+    ? isLocalHostname(runtimeHostname)
+    : process.env.NODE_ENV !== "production";
+
+  // Guard against accidentally deploying a localhost API URL to production.
+  if (configured) {
+    if (!runtimeIsLocal && isLocalApiUrl(configured)) {
+      return PROD_API_BASE_URL;
+    }
+    return configured;
+  }
+
+  return runtimeIsLocal ? LOCAL_API_BASE_URL : PROD_API_BASE_URL;
+}
+
+export const API_BASE_URL = resolveApiBaseUrl();
 
 export const STATUS_OPTIONS: { label: string; value: Status }[] = [
   { label: "Pending", value: "pending" },
